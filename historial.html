@@ -1,0 +1,757 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Historial - POS Restaurante</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body class="d-flex flex-column min-vh-100">
+  <!-- Spinner de carga personalizado -->
+  <div id="customLoader" style="position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:9999;display:flex;align-items:center;justify-content:center;background:#181818;">
+    <div style="text-align:center;">
+      <img src="image/logo-ToySoft.png" alt="Cargando..." style="width:90px;height:90px;border-radius:50%;background:#fff;box-shadow:0 0 20px #0dcaf0;animation:spin 1.5s linear infinite;">
+      <div style="color:#0dcaf0;font-weight:bold;margin-top:14px;letter-spacing:1px;">Cargando ToySoft...</div>
+    </div>
+  </div>
+
+  <div id="mainContent" style="display:none;">
+    <div class="container-fluid py-3">
+      <div class="row mb-4">
+        <div class="col-12">
+          <div class="d-flex justify-content-between align-items-center">
+            <h1>Historial</h1>
+            <div class="d-flex gap-2">
+              <a href="POS.html" class="btn btn-outline-light">
+                <i class="fas fa-arrow-left"></i> Volver al POS
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pestañas -->
+      <ul class="nav nav-tabs mb-4" id="historialTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+          <button class="nav-link active" id="ventas-tab" data-bs-toggle="tab" data-bs-target="#ventas" type="button" role="tab">
+            <i class="fas fa-receipt"></i> Historial de Ventas
+          </button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link" id="cocina-tab" data-bs-toggle="tab" data-bs-target="#cocina" type="button" role="tab">
+            <i class="fas fa-utensils"></i> Historial de Cocina
+          </button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link" id="cierres-tab" data-bs-toggle="tab" data-bs-target="#cierres" type="button" role="tab">
+            <i class="fas fa-calculator"></i> Historial de Cierres
+          </button>
+        </li>
+      </ul>
+
+      <!-- Contenido de las pestañas -->
+      <div class="tab-content" id="historialTabsContent">
+        <!-- Pestaña de Ventas -->
+        <div class="tab-pane fade show active" id="ventas" role="tabpanel">
+          <div class="card bg-dark">
+            <div class="card-body">
+              <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="card-title">Historial de Ventas</h5>
+                <div class="input-group" style="max-width: 300px;">
+                  <input type="text" class="form-control bg-dark text-white border-light" 
+                         id="buscarVenta" placeholder="Buscar venta...">
+                  <button class="btn btn-outline-light" onclick="buscarVentas()">
+                    <i class="fas fa-search"></i>
+                  </button>
+                </div>
+              </div>
+              <div class="table-responsive">
+                <table class="table table-dark table-hover">
+                  <thead>
+                    <tr>
+                      <th>Fecha</th>
+                      <th>Mesa/Cliente</th>
+                      <th>Total</th>
+                      <th>Método</th>
+                      <th>Acciones</th>
+                    </tr>
+                  </thead>
+                  <tbody id="tablaVentas">
+                    <!-- Las ventas se cargarán aquí -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Pestaña de Cocina -->
+        <div class="tab-pane fade" id="cocina" role="tabpanel">
+          <div class="card bg-dark">
+            <div class="card-body">
+              <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="card-title">Historial de Cocina</h5>
+                <div class="input-group" style="max-width: 300px;">
+                  <input type="text" class="form-control bg-dark text-white border-light" 
+                         id="buscarCocina" placeholder="Buscar orden...">
+                  <button class="btn btn-outline-light" onclick="buscarCocina()">
+                    <i class="fas fa-search"></i>
+                  </button>
+                </div>
+              </div>
+              <div class="table-responsive">
+                <table class="table table-dark table-hover">
+                  <thead>
+                    <tr>
+                      <th>Fecha</th>
+                      <th>Mesa/Cliente</th>
+                      <th>Productos</th>
+                      <th>Acciones</th>
+                    </tr>
+                  </thead>
+                  <tbody id="tablaCocina">
+                    <!-- Las órdenes de cocina se cargarán aquí -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Pestaña de Cierres -->
+        <div class="tab-pane fade" id="cierres" role="tabpanel">
+          <div class="card bg-dark">
+            <div class="card-body">
+              <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="card-title">Historial de Cierres de Caja</h5>
+                <div class="input-group" style="max-width: 300px;">
+                  <input type="date" class="form-control bg-dark text-white border-light" 
+                         id="fechaCierres" onchange="filtrarCierres()">
+                </div>
+              </div>
+              <div class="table-responsive">
+                <table class="table table-dark table-hover">
+                  <thead>
+                    <tr>
+                      <th>Fecha</th>
+                      <th>Entrega</th>
+                      <th>Recibe</th>
+                      <th>Total Ventas</th>
+                      <th>Total Gastos</th>
+                      <th>Balance</th>
+                      <th>Acciones</th>
+                    </tr>
+                  </thead>
+                  <tbody id="tablaCierres">
+                    <!-- Los cierres se cargarán aquí -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+  <script src="historial.js"></script>
+  <script>
+    // Cargar datos al iniciar
+    document.addEventListener('DOMContentLoaded', () => {
+      cargarDatos();
+      cargarHistorialVentas();
+      cargarHistorialCocina();
+      cargarHistorialCierres();
+    });
+
+    // Función para cargar datos
+    function cargarDatos() {
+      try {
+        // Cargar historial de ventas
+        const historialVentasGuardado = localStorage.getItem('historialVentas');
+        if (historialVentasGuardado) {
+          historialVentas = JSON.parse(historialVentasGuardado);
+          if (!Array.isArray(historialVentas)) {
+            console.error('Error: historialVentas no es un array');
+            historialVentas = [];
+          }
+        } else {
+          historialVentas = [];
+        }
+
+        // Cargar historial de cocina
+        const historialCocinaGuardado = localStorage.getItem('historialCocina');
+        if (historialCocinaGuardado) {
+          historialCocina = JSON.parse(historialCocinaGuardado);
+          if (!Array.isArray(historialCocina)) {
+            console.error('Error: historialCocina no es un array');
+            historialCocina = [];
+          }
+        } else {
+          historialCocina = [];
+        }
+
+        console.log('Datos cargados:', { historialVentas, historialCocina });
+      } catch (error) {
+        console.error('Error al cargar datos:', error);
+        historialVentas = [];
+        historialCocina = [];
+      }
+    }
+
+    // Función para formatear precio
+    function formatearPrecio(precio) {
+      return '$ ' + parseFloat(precio).toLocaleString();
+    }
+
+    // Función para cargar el historial de ventas
+    function cargarHistorialVentas() {
+      try {
+      const tablaVentas = document.getElementById('tablaVentas');
+        if (!tablaVentas) {
+          console.error('No se encontró el elemento tablaVentas');
+          return;
+        }
+        
+      tablaVentas.innerHTML = '';
+        console.log('Cargando historial de ventas:', historialVentas);
+
+        if (!Array.isArray(historialVentas) || historialVentas.length === 0) {
+          const fila = document.createElement('tr');
+          fila.innerHTML = '<td colspan="5" class="text-center">No hay ventas registradas</td>';
+          tablaVentas.appendChild(fila);
+          return;
+        }
+
+        // Ordenar ventas por fecha de más reciente a más antiguo
+        const ventasOrdenadas = [...historialVentas].sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
+
+      ventasOrdenadas.forEach(venta => {
+        const fila = document.createElement('tr');
+        fila.innerHTML = `
+            <td>${venta.fecha || 'N/A'}</td>
+            <td>${venta.mesa || 'N/A'}</td>
+            <td>${formatearPrecio(venta.total || 0)}</td>
+            <td>${venta.metodoPago || 'N/A'}</td>
+          <td>
+            <button class="btn btn-sm btn-outline-light" onclick="reimprimirFactura(${venta.id})">
+              <i class="fas fa-print"></i> Reimprimir
+            </button>
+          </td>
+        `;
+        tablaVentas.appendChild(fila);
+      });
+      } catch (error) {
+        console.error('Error al cargar historial de ventas:', error);
+        const tablaVentas = document.getElementById('tablaVentas');
+        if (tablaVentas) {
+          tablaVentas.innerHTML = '<tr><td colspan="5" class="text-center text-danger">Error al cargar el historial</td></tr>';
+        }
+      }
+    }
+
+    // Función para cargar el historial de cocina
+    function cargarHistorialCocina() {
+      try {
+      const tablaCocina = document.getElementById('tablaCocina');
+        if (!tablaCocina) {
+          console.error('No se encontró el elemento tablaCocina');
+          return;
+        }
+
+      tablaCocina.innerHTML = '';
+        console.log('Cargando historial de cocina:', historialCocina);
+
+        if (!Array.isArray(historialCocina) || historialCocina.length === 0) {
+          const fila = document.createElement('tr');
+          fila.innerHTML = '<td colspan="4" class="text-center">No hay órdenes de cocina registradas</td>';
+          tablaCocina.appendChild(fila);
+          return;
+        }
+
+        // Ordenar órdenes de cocina por fecha de más reciente a más antiguo
+        const ordenesOrdenadas = [...historialCocina].sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
+
+      ordenesOrdenadas.forEach(orden => {
+        const fila = document.createElement('tr');
+        fila.innerHTML = `
+            <td>${orden.fecha || 'N/A'}</td>
+            <td>${orden.mesa || 'N/A'}</td>
+            <td>${orden.items ? orden.items.length : 0} productos</td>
+          <td>
+            <button class="btn btn-sm btn-outline-light" onclick="reimprimirTicketCocina(${orden.id})">
+              <i class="fas fa-print"></i> Reimprimir
+            </button>
+          </td>
+        `;
+        tablaCocina.appendChild(fila);
+      });
+      } catch (error) {
+        console.error('Error al cargar historial de cocina:', error);
+        const tablaCocina = document.getElementById('tablaCocina');
+        if (tablaCocina) {
+          tablaCocina.innerHTML = '<tr><td colspan="4" class="text-center text-danger">Error al cargar el historial</td></tr>';
+        }
+      }
+    }
+
+    // Función para buscar ventas
+    function buscarVentas() {
+      const busqueda = document.getElementById('buscarVenta').value.toLowerCase();
+      const tablaVentas = document.getElementById('tablaVentas');
+      tablaVentas.innerHTML = '';
+
+      const ventasFiltradas = historialVentas.filter(venta => 
+        venta.mesa.toLowerCase().includes(busqueda) ||
+        venta.fecha.toLowerCase().includes(busqueda) ||
+        (venta.cliente && venta.cliente.toLowerCase().includes(busqueda))
+      );
+
+      // Ordenar ventas filtradas por fecha de más reciente a más antiguo
+      const ventasOrdenadas = ventasFiltradas.sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
+
+      ventasOrdenadas.forEach(venta => {
+        const fila = document.createElement('tr');
+        fila.innerHTML = `
+          <td>${venta.fecha}</td>
+          <td>${venta.mesa}</td>
+          <td>${formatearPrecio(venta.total)}</td>
+          <td>${venta.metodoPago}</td>
+          <td>
+            <button class="btn btn-sm btn-outline-light" onclick="reimprimirFactura(${venta.id})">
+              <i class="fas fa-print"></i> Reimprimir
+            </button>
+          </td>
+        `;
+        tablaVentas.appendChild(fila);
+      });
+    }
+
+    // Función para buscar órdenes de cocina
+    function buscarCocina() {
+      const busqueda = document.getElementById('buscarCocina').value.toLowerCase();
+      const tablaCocina = document.getElementById('tablaCocina');
+      tablaCocina.innerHTML = '';
+
+      const ordenesFiltradas = historialCocina.filter(orden => 
+        orden.mesa.toLowerCase().includes(busqueda) ||
+        orden.fecha.toLowerCase().includes(busqueda)
+      );
+
+      // Ordenar órdenes filtradas por fecha de más reciente a más antiguo
+      const ordenesOrdenadas = ordenesFiltradas.sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
+
+      ordenesOrdenadas.forEach(orden => {
+        const fila = document.createElement('tr');
+        fila.innerHTML = `
+          <td>${orden.fecha}</td>
+          <td>${orden.mesa}</td>
+          <td>${orden.items ? orden.items.length : 0} productos</td>
+          <td>
+            <button class="btn btn-sm btn-outline-light" onclick="reimprimirTicketCocina(${orden.id})">
+              <i class="fas fa-print"></i> Reimprimir
+            </button>
+          </td>
+        `;
+        tablaCocina.appendChild(fila);
+      });
+    }
+
+    // Función para reimprimir factura
+    function reimprimirFactura(ventaId) {
+      try {
+        console.log('Intentando reimprimir factura:', ventaId);
+        console.log('Historial de ventas actual:', historialVentas);
+        
+        const venta = historialVentas.find(v => v.id === ventaId);
+        if (!venta) {
+          console.error('No se encontró la venta con ID:', ventaId);
+          alert('No se encontró la venta');
+          return;
+        }
+
+        console.log('Venta encontrada:', venta);
+
+        // Crear una nueva ventana con dimensiones específicas
+        const ventana = window.open('', 'ImpresionFactura', 'width=400,height=600,scrollbars=yes');
+        if (!ventana) {
+          alert('Por favor, permite las ventanas emergentes para este sitio');
+          return;
+        }
+
+        // Escribir el contenido en la ventana
+        ventana.document.write(`
+          <!DOCTYPE html>
+          <html>
+            <head>
+              <title>Factura</title>
+              <meta charset="UTF-8">
+              <style>
+                body { 
+                  font-family: monospace; 
+                  font-size: 14px; 
+                  width: 57mm; 
+                  margin: 0; 
+                  padding: 1mm;
+                  background: white;
+                  color: black;
+                }
+                .text-center { text-align: center; }
+                .text-right { text-align: right; }
+                .mb-1 { margin-bottom: 0.5mm; }
+                .mt-1 { margin-top: 0.5mm; }
+                .border-top { border-top: 1px dashed #000; margin-top: 1mm; padding-top: 1mm; }
+                .header { border-bottom: 1px dashed #000; padding-bottom: 1mm; margin-bottom: 1mm; }
+                .total-row { font-weight: bold; font-size: 16px; }
+                .botones-impresion { 
+                  position: fixed; 
+                  top: 10px; 
+                  right: 10px; 
+                  z-index: 1000; 
+                  background: #fff; 
+                  padding: 5px; 
+                  border-radius: 5px; 
+                  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+                  display: flex;
+                  gap: 5px;
+                }
+                .botones-impresion button { 
+                  margin: 0; 
+                  padding: 5px 10px; 
+                  background: #007bff; 
+                  color: white; 
+                  border: none; 
+                  border-radius: 3px; 
+                  cursor: pointer;
+                  font-size: 12px;
+                }
+                .botones-impresion button:hover { background: #0056b3; }
+                .logo-container { text-align: center; margin-bottom: 2mm; }
+                .logo-container img { max-width: 100%; max-height: 120px; }
+                @media print { 
+                  .botones-impresion { display: none; } 
+                  @page { margin: 0; size: 57mm auto; } 
+                  body { width: 57mm; } 
+                }
+                .contenido-factura {
+                  margin-top: 40px;
+                }
+              </style>
+            </head>
+            <body>
+              <div class="botones-impresion">
+                <button onclick="window.print()">Imprimir</button>
+                <button onclick="window.close()">Cerrar</button>
+              </div>
+
+              <div class="contenido-factura">
+                <div class="header text-center">
+                  <h2 style="margin: 0; font-size: 14px;">FACTURA</h2>
+                  <div class="mb-1">${venta.fecha || 'N/A'}</div>
+                  <div class="mb-1">Mesa/Cliente: ${venta.mesa || 'N/A'}</div>
+                </div>
+
+                <div class="border-top">
+                  <div class="mb-1"><strong>Productos:</strong></div>
+                  ${(venta.items || []).map(item => `
+                    <div class="mb-1">
+                      ${item.cantidad}x ${item.nombre}
+                      <div class="text-right">$ ${((item.precio || 0) * (item.cantidad || 0)).toLocaleString()}</div>
+                    </div>
+                  `).join('')}
+                </div>
+
+                <div class="border-top">
+                  <div class="mb-1">Subtotal: $ ${(venta.subtotal || 0).toLocaleString()}</div>
+                  <div class="mb-1">IVA (19%): $ ${(venta.iva || 0).toLocaleString()}</div>
+                  <div class="mb-1 total-row">Total: $ ${(venta.total || 0).toLocaleString()}</div>
+                </div>
+
+                <div class="border-top">
+                  <div class="mb-1">Método de Pago: ${venta.metodoPago || 'N/A'}</div>
+                  ${(venta.metodoPago || '').toLowerCase() === 'mixto' ? `
+                    <div class="mb-1">- Efectivo: $ ${(venta.montoRecibido || 0).toLocaleString()}</div>
+                    <div class="mb-1">- Transferencia: $ ${(venta.montoTransferencia || 0).toLocaleString()}</div>
+                  ` : ''}
+                </div>
+
+                <div class="text-center mt-1">
+                  <div class="border-top">¡Gracias por su compra!</div>
+                  <div class="border-top">ToySoft POS</div>
+                </div>
+              </div>
+            </body>
+          </html>
+        `);
+        ventana.document.close();
+      } catch (error) {
+        console.error('Error al reimprimir factura:', error);
+        alert('Error al reimprimir la factura: ' + error.message);
+      }
+    }
+
+    // Función para cargar el historial de cierres
+    function cargarHistorialCierres() {
+      try {
+        const tablaCierres = document.getElementById('tablaCierres');
+        if (!tablaCierres) {
+          console.error('No se encontró el elemento tablaCierres');
+          return;
+        }
+
+        tablaCierres.innerHTML = '';
+        const historialCierres = JSON.parse(localStorage.getItem('historialCierres')) || [];
+        console.log('Cargando historial de cierres:', historialCierres);
+
+        if (!Array.isArray(historialCierres) || historialCierres.length === 0) {
+          const fila = document.createElement('tr');
+          fila.innerHTML = '<td colspan="7" class="text-center">No hay cierres registrados</td>';
+          tablaCierres.appendChild(fila);
+          return;
+        }
+
+        // Ordenar cierres por fecha de más reciente a más antiguo
+        historialCierres.sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
+
+        historialCierres.forEach(cierre => {
+          const fila = document.createElement('tr');
+          fila.innerHTML = `
+            <td>${new Date(cierre.fecha).toLocaleString()}</td>
+            <td>${cierre.nombreCierre || 'N/A'}</td>
+            <td>${cierre.nombreRecibe || 'N/A'}</td>
+            <td>${formatearPrecio(cierre.ventas?.total || 0)}</td>
+            <td>${formatearPrecio(cierre.gastos || 0)}</td>
+            <td>${formatearPrecio(cierre.balance || 0)}</td>
+            <td>
+              <button class="btn btn-sm btn-outline-light" onclick="reimprimirCierre('${cierre.fecha}')">
+                <i class="fas fa-print"></i> Reimprimir
+              </button>
+            </td>
+          `;
+          tablaCierres.appendChild(fila);
+        });
+      } catch (error) {
+        console.error('Error al cargar historial de cierres:', error);
+        const tablaCierres = document.getElementById('tablaCierres');
+        if (tablaCierres) {
+          tablaCierres.innerHTML = '<tr><td colspan="7" class="text-center text-danger">Error al cargar el historial</td></tr>';
+        }
+      }
+    }
+
+    // Función para filtrar cierres por fecha
+    function filtrarCierres() {
+      const fechaSeleccionada = document.getElementById('fechaCierres').value;
+      if (!fechaSeleccionada) {
+        cargarHistorialCierres();
+        return;
+      }
+
+      try {
+        const tablaCierres = document.getElementById('tablaCierres');
+        const historialCierres = JSON.parse(localStorage.getItem('historialCierres')) || [];
+        
+        const cierresFiltrados = historialCierres.filter(cierre => {
+          const fechaCierre = new Date(cierre.fecha);
+          const fechaFiltro = new Date(fechaSeleccionada);
+          return fechaCierre.toDateString() === fechaFiltro.toDateString();
+        });
+
+        // Ordenar cierres filtrados por fecha de más reciente a más antiguo
+        cierresFiltrados.sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
+
+        tablaCierres.innerHTML = '';
+        if (cierresFiltrados.length === 0) {
+          const fila = document.createElement('tr');
+          fila.innerHTML = '<td colspan="7" class="text-center">No hay cierres para esta fecha</td>';
+          tablaCierres.appendChild(fila);
+          return;
+        }
+
+        cierresFiltrados.forEach(cierre => {
+          const fila = document.createElement('tr');
+          fila.innerHTML = `
+            <td>${new Date(cierre.fecha).toLocaleString()}</td>
+            <td>${cierre.nombreCierre || 'N/A'}</td>
+            <td>${cierre.nombreRecibe || 'N/A'}</td>
+            <td>${formatearPrecio(cierre.ventas?.total || 0)}</td>
+            <td>${formatearPrecio(cierre.gastos || 0)}</td>
+            <td>${formatearPrecio(cierre.balance || 0)}</td>
+            <td>
+              <button class="btn btn-sm btn-outline-light" onclick="reimprimirCierre('${cierre.fecha}')">
+                <i class="fas fa-print"></i> Reimprimir
+              </button>
+            </td>
+          `;
+          tablaCierres.appendChild(fila);
+        });
+      } catch (error) {
+        console.error('Error al filtrar cierres:', error);
+        alert('Error al filtrar los cierres');
+      }
+    }
+
+    // Función para reimprimir cierre
+    function reimprimirCierre(fechaCierre) {
+      try {
+        const historialCierres = JSON.parse(localStorage.getItem('historialCierres')) || [];
+        const cierre = historialCierres.find(c => c.fecha === fechaCierre);
+        
+        if (!cierre) {
+          alert('No se encontró el cierre');
+          return;
+        }
+
+        const ventana = window.open('', 'ImpresionCierre', 'width=400,height=600,scrollbars=yes');
+        if (!ventana) {
+          alert('Por favor, permite las ventanas emergentes para este sitio');
+          return;
+        }
+
+        ventana.document.write(`
+          <!DOCTYPE html>
+          <html>
+            <head>
+              <title>Cierre de Caja</title>
+              <meta charset="UTF-8">
+              <style>
+                body { 
+                  font-family: monospace; 
+                  font-size: 14px; 
+                  width: 57mm; 
+                  margin: 0; 
+                  padding: 1mm;
+                  background: white;
+                  color: black;
+                }
+                .text-center { text-align: center; }
+                .text-right { text-align: right; }
+                .mb-1 { margin-bottom: 0.5mm; }
+                .mt-1 { margin-top: 0.5mm; }
+                .border-top { border-top: 1px dashed #000; margin-top: 1mm; padding-top: 1mm; }
+                .header { border-bottom: 1px dashed #000; padding-bottom: 1mm; margin-bottom: 1mm; }
+                .total-row { font-weight: bold; font-size: 16px; }
+                .botones-impresion { 
+                  position: fixed; 
+                  top: 10px; 
+                  right: 10px; 
+                  z-index: 1000; 
+                  background: #fff; 
+                  padding: 5px; 
+                  border-radius: 5px; 
+                  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+                  display: flex;
+                  gap: 5px;
+                }
+              </style>
+            </head>
+            <body>
+              <div class="botones-impresion">
+                <button onclick="window.print()">Imprimir</button>
+                <button onclick="window.close()">Cerrar</button>
+              </div>
+              <div class="contenido-cierre">
+                <div class="header text-center">
+                  <h2 style="margin: 0; font-size: 14px;">CIERRE DE CAJA</h2>
+                  <div class="mb-1">${new Date(cierre.fecha).toLocaleString()}</div>
+                </div>
+
+                <div class="border-top">
+                  <div class="mb-1"><strong>Información de Cierre</strong></div>
+                  <div class="mb-1">Entrega: ${cierre.nombreCierre || 'N/A'}</div>
+                  <div class="mb-1">Recibe: ${cierre.nombreRecibe || 'N/A'}</div>
+                  <div class="mb-1">Base Caja: $ ${(cierre.montoBaseCaja || 0).toLocaleString()}</div>
+                </div>
+
+                <div class="border-top">
+                  <div class="mb-1"><strong>Resumen de Ventas</strong></div>
+                  <div class="mb-1">Total: $ ${(cierre.ventas?.total || 0).toLocaleString()}</div>
+                  <div class="mb-1">- Efectivo: $ ${(cierre.ventas?.efectivo || 0).toLocaleString()}</div>
+                  <div class="mb-1">- Transferencia: $ ${(cierre.ventas?.transferencia || 0).toLocaleString()}</div>
+                  <div class="mb-1">- Tarjeta: $ ${(cierre.ventas?.tarjeta || 0).toLocaleString()}</div>
+                  <div class="mb-1">- Crédito: $ ${(cierre.ventas?.credito || 0).toLocaleString()}</div>
+                  <div class="mb-1">- Mixto: $ ${(cierre.ventas?.mixto || 0).toLocaleString()}</div>
+                </div>
+
+                <div class="border-top">
+                  <div class="mb-1"><strong>Gastos</strong></div>
+                  <div class="mb-1">Total: $ ${(cierre.gastos || 0).toLocaleString()}</div>
+                </div>
+
+                <div class="border-top">
+                  <div class="mb-1 total-row">Balance Final: $ ${(cierre.balance || 0).toLocaleString()}</div>
+                </div>
+
+                ${cierre.detalles ? `
+                <div class="border-top">
+                  <div class="mb-1"><strong>Detalles Adicionales</strong></div>
+                  <div class="mb-1">${cierre.detalles}</div>
+                </div>
+                ` : ''}
+
+                <div class="border-top text-center">
+                  <div class="mb-1">Firma de Entrega: _________________</div>
+                  <div class="mb-1">Firma de Recibe: _________________</div>
+                </div>
+              </div>
+            </body>
+          </html>
+        `);
+        ventana.document.close();
+      } catch (error) {
+        console.error('Error al reimprimir cierre:', error);
+        alert('Error al reimprimir el cierre');
+      }
+    }
+
+    // Ocultar loader y mostrar contenido principal cuando la página esté lista
+    document.addEventListener('DOMContentLoaded', function() {
+      // Mostrar el loader por defecto
+      document.getElementById('customLoader').style.display = 'flex';
+      document.getElementById('mainContent').style.display = 'none';
+      
+      // Esperar a que todo se cargue
+      setTimeout(() => {
+        document.getElementById('customLoader').style.display = 'none';
+        document.getElementById('mainContent').style.display = 'block';
+      }, 1000);
+    });
+  </script>
+
+  <!-- Modal de Ayuda Contextual -->
+  <div class="modal fade" id="modalAyuda" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content bg-dark text-white">
+        <div class="modal-header">
+          <h5 class="modal-title">
+            <i class="fas fa-question-circle text-info"></i>
+            Ayuda: <span id="tituloAyuda">Historial de Ventas</span>
+          </h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <div id="contenidoAyuda"></div>
+          <div id="enlacesAyuda" class="mt-3">
+            <h6>Enlaces Relacionados:</h6>
+            <div class="list-group list-group-flush bg-dark">
+              <!-- Enlaces dinámicos -->
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="ayuda.js"></script>
+  <script src="app.js"></script>
+</body>
+</html> 

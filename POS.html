@@ -1,0 +1,1100 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ToySoft POS</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="manifest" href="manifest.json">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <meta name="theme-color" content="#0dcaf0">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="ToySoft POS">
+  <meta name="application-name" content="ToySoft POS">
+  <meta name="msapplication-TileColor" content="#0dcaf0">
+  <meta name="msapplication-TileImage" content="./image/logo-ToySoft.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="./image/logo-ToySoft.png">
+  <link rel="icon" type="image/png" sizes="512x512" href="./image/logo-ToySoft.png">
+  <link rel="apple-touch-icon" href="./image/logo-ToySoft.png">
+  <style>
+    .mesa-btn {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      margin: 10px;
+      font-size: 1.2rem;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .mesa-btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(145deg, rgba(255,255,255,0.2), rgba(255,255,255,0));
+      border-radius: 50%;
+      transition: all 0.3s ease;
+    }
+
+    .mesa-btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+    }
+
+    .mesa-btn:active {
+      transform: translateY(1px);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    .mesa-activa {
+      background-color: #ff8c00;
+      border: 3px solid #ff8c00;
+      color: white;
+    }
+
+    .mesa-domicilio {
+      background-color: #4CAF50;
+      border: 3px solid #4CAF50;
+      color: white;
+    }
+
+    .mesa-recoger {
+      background-color: #2196F3;
+      border: 3px solid #2196F3;
+      color: white;
+    }
+
+    .mesa-seleccionada {
+      background-color: #ff4500;
+      border: 3px solid #ff4500;
+      color: white;
+      box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.5), 0 8px 16px rgba(0, 0, 0, 0.3);
+      transform: scale(1.05);
+    }
+
+    .mesa-seleccionada::after {
+      content: '';
+      position: absolute;
+      top: -2px;
+      left: -2px;
+      right: -2px;
+      bottom: -2px;
+      border-radius: 50%;
+      border: 2px solid rgba(255, 255, 255, 0.8);
+      animation: pulse 1.5s infinite;
+    }
+
+    @keyframes pulse {
+      0% {
+        transform: scale(1);
+        opacity: 1;
+      }
+      50% {
+        transform: scale(1.1);
+        opacity: 0.5;
+      }
+      100% {
+        transform: scale(1);
+        opacity: 1;
+      }
+    }
+
+    .mesa-numero {
+      font-size: 1.2em;
+      font-weight: bold;
+      text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+    }
+    .mesa-btn i {
+      font-size: 1.5rem;
+    }
+    .mesa-btn .mesa-numero {
+      font-size: 0.8rem;
+      position: absolute;
+      bottom: 5px;
+    }
+    .mesas-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      padding: 20px;
+    }
+    .acciones-mesa {
+      display: none;
+      margin-top: 20px;
+    }
+    .acciones-mesa.visible {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+    }
+
+    @media print {
+      .botones-impresion {
+        display: none;
+      }
+      @page {
+        margin: 0;
+        size: 57mm auto;
+      }
+      body {
+        width: 57mm;
+        padding: 1mm;
+        font-size: 12px;
+      }
+      table {
+        font-size: 12px;
+      }
+      th, td {
+        padding: 0.5mm;
+      }
+      .header h2 {
+        font-size: 13px !important;
+      }
+      .total-row {
+        font-size: 13px;
+      }
+      .border-top {
+        margin-top: 1mm;
+        padding-top: 1mm;
+      }
+      .mb-1 {
+        margin-bottom: 0.5mm;
+      }
+      .mt-1 {
+        margin-top: 0.5mm;
+      }
+      .logo-container img {
+        max-height: 80px;
+      }
+    }
+
+    #propina, #descuento {
+      margin-bottom: 4px !important;
+      margin-top: 0 !important;
+    }
+    .orden-panel .row.g-3.mt-3 {
+      margin-top: 8px !important;
+    }
+    .d-flex.flex-column.flex-md-row.justify-content-between.align-items-center.mt-4 {
+      margin-top: 8px !important;
+    }
+    /* Compactar tabla de orden */
+    .orden-panel table th, .orden-panel table td {
+      padding-top: 4px !important;
+      padding-bottom: 4px !important;
+      padding-left: 6px !important;
+      padding-right: 6px !important;
+      font-size: 0.98em;
+    }
+    .orden-panel .table-secondary {
+      padding-top: 2px !important;
+      padding-bottom: 2px !important;
+      font-size: 0.95em;
+      margin-bottom: 0 !important;
+    }
+    .orden-panel .table-responsive {
+      margin-bottom: 6px !important;
+    }
+    .orden-panel .row.g-3.mt-3 {
+      margin-top: 4px !important;
+      margin-bottom: 4px !important;
+    }
+    .orden-panel input.form-control {
+      margin-bottom: 2px !important;
+      margin-top: 0 !important;
+      padding-top: 4px !important;
+      padding-bottom: 4px !important;
+      font-size: 0.98em;
+    }
+  </style>
+</head>
+<body class="d-flex flex-column min-vh-100">
+  <!-- Spinner de carga personalizado -->
+  <div id="customLoader" style="position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:9999;display:flex;align-items:center;justify-content:center;background:#181818;">
+    <div style="text-align:center;">
+      <img src="image/logo-ToySoft.png" alt="Cargando..." style="width:90px;height:90px;border-radius:50%;background:#fff;box-shadow:0 0 20px #0dcaf0;animation:spin 1.5s linear infinite;">
+      <div style="color:#0dcaf0;font-weight:bold;margin-top:14px;letter-spacing:1px;">Cargando ToySoft...</div>
+    </div>
+  </div>
+
+  <div id="mainContent" style="display:none;">
+    <div class="container-fluid py-3">
+      <div class="row mb-4">
+        <div class="col-12">
+          <div class="d-flex flex-column flex-md-row justify-content-between align-items-center">
+            <!-- Header con logo y título -->
+            <div class="d-flex align-items-center mb-4" style="gap: 20px;">
+              <img src="image/logo-ToySoft.png" alt="Logo" style="height: 80px; width: 80px; border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.35), 0 1.5px 0 #fff inset; background: linear-gradient(145deg, #222 0%, #444 100%); border: 2px solid #0dcaf0; object-fit: cover;">
+              <h1 class="nombreRestaurante mb-0 me-4" style="white-space:nowrap;">ToySoft POS</h1>
+            </div>
+            <div class="d-flex gap-2">
+              <a href="historial.html" class="btn btn-info"><i class="fas fa-history"></i> Historial</a>
+              <a href="gastos.html" class="btn btn-warning"><i class="fas fa-coins"></i> Gastos Diarios</a>
+              <a href="inventario.html" class="btn btn-success"><i class="fas fa-boxes"></i> Inventario</a>
+              <button class="btn btn-primary" onclick="mostrarModalCotizaciones()"><i class="fas fa-file-invoice"></i> Cotizaciones</button>
+              <button class="btn btn-outline-info" onclick="mostrarModalCierreDiario()"><i class="fas fa-calculator"></i> Cierre de Caja</button>
+              <button class="btn btn-outline-warning" onclick="mostrarModalBalance()"><i class="fas fa-chart-line"></i> Balance</button>
+              <a href="index.html" class="btn btn-outline-light"><i class="fas fa-home"></i> Volver al Inicio</a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="row mb-4">
+        <div class="col-12">
+          <div class="card bg-dark">
+            <div class="card-body">
+              <h4 class="text-info mb-3">Mesas Activas</h4>
+              <div class="d-flex justify-content-between align-items-center mb-3">
+                <div class="input-group" style="max-width: 300px;">
+                  <input type="number" id="nuevaMesa" class="form-control bg-dark text-white border-light" 
+                         placeholder="N° de mesa" min="1">
+                  <button class="btn btn-warning" onclick="crearNuevaMesa()"><i class="fas fa-plus"></i> Nueva Mesa</button>
+                </div>
+                <div class="d-flex gap-2">
+                  <button class="btn btn-success" onclick="crearPedidoDomicilio()"><i class="fas fa-motorcycle"></i> Domicilio</button>
+                  <button class="btn btn-primary" onclick="crearPedidoRecoger()"><i class="fas fa-shopping-bag"></i> Recoger</button>
+                </div>
+              </div>
+              <div class="mesas-container" id="mesasContainer">
+                <!-- Los botones de mesas se generarán dinámicamente -->
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="row">
+        <!-- Categorías a la izquierda -->
+        <div class="col-12 col-lg-3">
+          <div class="card bg-dark h-100">
+            <div class="card-body">
+              <h4 class="text-info mb-3">Categorías</h4>
+              <div id="categorias" class="d-grid gap-2"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Orden actual en el centro -->
+        <div class="col-12 col-lg-9">
+          <div class="card bg-dark h-100">
+            <div class="card-body d-flex flex-column">
+              <h4 class="text-info mb-3">Orden Actual - Mesa <span id="mesaActual">-</span></h4>
+              
+              <!-- Botones de acción fijos en la parte superior -->
+              <div class="d-flex gap-2 mb-3">
+                <button class="btn btn-danger" onclick="eliminarPedido()"><i class="fas fa-trash"></i> Eliminar Pedido</button>
+                <button class="btn btn-primary" onclick="enviarACocina()"><i class="fas fa-utensils"></i> Enviar a Cocina</button>
+                <button class="btn btn-success" onclick="mostrarModalPago()"><i class="fas fa-receipt"></i> Generar Recibo</button>
+              </div>
+
+              <!-- Inputs de propina, descuento y domicilio -->
+              <div class="row g-3 mb-3">
+                <div class="col-12 col-md-4">
+                  <label class="form-label fw-bold">Propina</label>
+                  <input type="number" id="propina" class="form-control bg-dark text-white border-light" 
+                         min="0" max="100" placeholder="Ej: 10 para 10% de propina" />
+                </div>
+                <div class="col-12 col-md-4">
+                  <label class="form-label fw-bold">Descuento</label>
+                  <input type="number" id="descuento" class="form-control bg-dark text-white border-light" 
+                         min="0" placeholder="Ej: 5000 para $5000 de descuento" />
+                </div>
+                <div class="col-12 col-md-4" id="domicilioContainer" style="display: none;">
+                  <label class="form-label fw-bold">Valor Domicilio</label>
+                  <input type="number" id="valorDomicilio" class="form-control bg-dark text-white border-light" 
+                         min="0" placeholder="Ej: 3000 para $3000 de domicilio" />
+                </div>
+              </div>
+
+              <!-- Tabla de orden con scroll -->
+              <div class="table-responsive flex-grow-1" style="max-height: 400px; overflow-y: auto;">
+                <table class="table table-bordered table-dark table-striped" id="ordenTabla">
+                  <thead class="table-secondary text-dark sticky-top">
+                    <tr>
+                      <th>Producto</th>
+                      <th>Cant</th>
+                      <th>Precio</th>
+                      <th>Total</th>
+                      <th>Detalles</th>
+                      <th>Eliminar</th>
+                    </tr>
+                  </thead>
+                  <tbody id="ordenCuerpo"></tbody>
+                </table>
+              </div>
+
+              <!-- Total fijo en la parte inferior -->
+              <div class="mt-3">
+                <h2 class="mb-2 fw-bold" style="font-size: 2.5rem;">Total: <span id="totalOrden" class="text-success">$0</span></h2>
+                <div id="desgloseTotal" class="small text-muted"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal de Cliente -->
+    <div class="modal fade" id="modalCliente" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content bg-dark text-white">
+          <div class="modal-header">
+            <h5 class="modal-title">Seleccionar Cliente</h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body">
+            <div class="mb-3">
+              <div class="d-flex justify-content-between align-items-center mb-2">
+                <h6>Buscar Cliente</h6>
+                <button class="btn btn-sm btn-outline-light" onclick="mostrarFormularioNuevoCliente()">
+                  <i class="fas fa-plus"></i> Nuevo Cliente
+                </button>
+              </div>
+              <form onsubmit="event.preventDefault(); buscarClientes();" class="mb-3">
+                <div class="input-group input-group-sm">
+                  <input type="text" class="form-control bg-dark text-white border-light" 
+                         id="buscarCliente" placeholder="Buscar por nombre o teléfono...">
+                  <button class="btn btn-outline-light btn-sm" type="submit">
+                    <i class="fas fa-search fa-sm"></i>
+                  </button>
+                </div>
+              </form>
+              <div class="list-group bg-dark" id="listaClientes">
+                <!-- Los clientes se cargarán dinámicamente -->
+              </div>
+            </div>
+            
+            <div id="formularioNuevoCliente" style="display: none;">
+              <h6 class="mb-3">Nuevo Cliente</h6>
+              <div class="mb-3">
+                <label class="form-label">Nombre</label>
+                <input type="text" class="form-control bg-dark text-white border-light" id="nuevoClienteNombre">
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Teléfono</label>
+                <input type="tel" class="form-control bg-dark text-white border-light" id="nuevoClienteTelefono">
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Dirección</label>
+                <input type="text" class="form-control bg-dark text-white border-light" id="nuevoClienteDireccion">
+              </div>
+              <div class="d-flex justify-content-end gap-2">
+                <button class="btn btn-secondary" onclick="ocultarFormularioNuevoCliente()">Cancelar</button>
+                <button class="btn btn-primary" onclick="guardarNuevoClienteDesdePOS()">Guardar</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal de Pago -->
+    <div class="modal fade" id="modalPago" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content bg-dark text-white">
+          <div class="modal-header">
+            <h5 class="modal-title">Procesar Pago</h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body">
+            <!-- Sección de Clientes -->
+            <div class="mb-3">
+              <h6>Buscar Cliente (Opcional)</h6>
+              <form onsubmit="event.preventDefault(); buscarClientesPago();" class="mb-3">
+                <div class="input-group input-group-sm">
+                  <input type="text" class="form-control bg-dark text-white border-light" 
+                         id="buscarClientePago" placeholder="Buscar por nombre o teléfono...">
+                  <button class="btn btn-outline-light btn-sm" type="submit">
+                    <i class="fas fa-search fa-sm"></i>
+                  </button>
+                </div>
+              </form>
+              <div id="listaClientesPago" class="list-group">
+                <!-- Los clientes se cargarán aquí -->
+              </div>
+            </div>
+
+            <!-- Sección de Totales -->
+            <div id="totalesSection" class="mb-3">
+              <div class="border-top border-light pt-2">
+                <div class="d-flex justify-content-between mb-1">
+                  <span>Subtotal:</span>
+                  <span id="subtotalModal">$ 0</span>
+                </div>
+                <div class="d-flex justify-content-between mb-1">
+                  <span>Propina (0%):</span>
+                  <span id="propinaModal">$ 0</span>
+                </div>
+                <div class="d-flex justify-content-between mb-1">
+                  <span>Descuento:</span>
+                  <span id="descuentoModal">$ 0</span>
+                </div>
+                <div class="d-flex justify-content-between mb-1 fw-bold">
+                  <span>Total:</span>
+                  <span id="totalModal">$ 0</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Método de Pago -->
+            <div class="mb-3">
+              <label class="form-label">Método de Pago</label>
+              <select id="metodoPago" class="form-select bg-dark text-white border-light">
+                <option value="efectivo">Efectivo</option>
+                <option value="tarjeta">Tarjeta</option>
+                <option value="transferencia">Transferencia</option>
+                <option value="mixto">Mixto (Efectivo + Transferencia)</option>
+              </select>
+            </div>
+
+            <!-- Sección de Efectivo -->
+            <div id="efectivoSection" class="mb-3">
+              <div class="mb-3">
+                <label class="form-label">Monto en Efectivo</label>
+                <input type="number" id="montoRecibido" class="form-control bg-dark text-white border-light">
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Devolver en efectivo</label>
+                <div id="cambio" class="form-control bg-dark text-white border-light">$ 0</div>
+              </div>
+            </div>
+
+            <!-- Sección de Transferencia -->
+            <div id="transferenciaSection" class="mb-3" style="display: none;">
+              <div class="mb-3">
+                <label class="form-label">Número de Transferencia</label>
+                <input type="text" id="numeroTransferencia" class="form-control bg-dark text-white border-light">
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Monto por Transferencia</label>
+                <input type="number" id="montoTransferencia" class="form-control bg-dark text-white border-light">
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+            <button type="button" class="btn btn-primary" onclick="procesarPago()"><i class="fas fa-check"></i> Confirmar Pago</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal de Cierre de Caja -->
+    <div class="modal fade" id="modalCierreDiario" tabindex="-1" aria-labelledby="modalCierreDiarioLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content bg-dark text-white">
+          <div class="modal-header">
+            <h5 class="modal-title" id="modalCierreDiarioLabel">
+              <i class="fas fa-calculator"></i> Cierre de Caja
+              <button class="btn btn-sm btn-outline-info ms-2" onclick="mostrarAyudaEspecifica('cierre-caja')" title="Ayuda">
+                <i class="fas fa-question-circle"></i>
+              </button>
+            </h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <div class="mb-3">
+              <h6>
+                <i class="fas fa-chart-bar"></i> Resumen de Ventas
+                <button class="btn btn-sm btn-outline-info ms-2" onclick="mostrarAyudaEspecifica('resumen-ventas')" title="Ayuda">
+                  <i class="fas fa-question-circle"></i>
+                </button>
+              </h6>
+              <div>Total Ventas: <span id="totalVentasHoy">$ 0</span></div>
+              <div>Efectivo: <span id="totalEfectivoHoy">$ 0</span></div>
+              <div>Transferencia: <span id="totalTransferenciaHoy">$ 0</span></div>
+              <div>Tarjeta: <span id="totalTarjetaHoy">$ 0</span></div>
+              <div>Crédito: <span id="totalCreditoHoy">$ 0</span></div>
+            </div>
+            
+            <div class="mb-3">
+              <h6>
+                <i class="fas fa-receipt"></i> Gastos del Día
+                <button class="btn btn-sm btn-outline-info ms-2" onclick="mostrarAyudaEspecifica('gestion-gastos')" title="Ayuda">
+                  <i class="fas fa-question-circle"></i>
+                </button>
+              </h6>
+              <div>Total Gastos: <span id="totalGastosHoy">$ 0</span></div>
+              <button class="btn btn-info mt-2" onclick="mostrarModalGastos()"><i class="fas fa-receipt"></i> Gestionar Gastos</button>
+            </div>
+            
+            <div class="mb-3">
+              <h6>
+                <i class="fas fa-balance-scale"></i> Balance Final
+                <button class="btn btn-sm btn-outline-info ms-2" onclick="mostrarAyudaEspecifica('balance-final')" title="Ayuda">
+                  <i class="fas fa-question-circle"></i>
+                </button>
+              </h6>
+              <div>Balance: <span id="balanceFinal">$ 0</span></div>
+            </div>
+
+            <div class="mb-3">
+              <h6>Créditos Pendientes</h6>
+              <div id="detallesCreditos" class="mt-2">
+                <!-- Los créditos pendientes se mostrarán aquí -->
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <h6>
+                <i class="fas fa-user-check"></i> Información del Cierre
+                <button class="btn btn-sm btn-outline-info ms-2" onclick="mostrarAyudaEspecifica('informacion-cierre')" title="Ayuda">
+                  <i class="fas fa-question-circle"></i>
+                </button>
+              </h6>
+              <div class="mb-2">
+                <label class="form-label fw-bold fs-6">Nombre de quien realiza el cierre:</label>
+                <input type="text" class="form-control bg-dark text-white border-light" id="nombreCierre" required>
+              </div>
+              <div class="mb-2">
+                <label class="form-label fw-bold fs-6">Nombre de quien recibe la caja:</label>
+                <input type="text" class="form-control bg-dark text-white border-light" id="nombreRecibe" required>
+              </div>
+              <div class="mb-2">
+                <label class="form-label fw-bold fs-6">Monto base para la caja:</label>
+                <div class="input-group">
+                  <span class="input-group-text">$</span>
+                  <input type="number" class="form-control bg-dark text-white border-light" id="montoBaseCaja" required>
+                </div>
+              </div>
+            </div>
+            
+            <div class="mb-3">
+              <label class="form-label">Detalles Adicionales</label>
+              <textarea class="form-control bg-dark text-white border-light" id="detallesCierre" rows="3"></textarea>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+            <button type="button" class="btn btn-success" onclick="exportarCierresDiariosExcel()"><i class="fas fa-file-excel"></i> Exportar a Excel</button>
+            <button type="button" class="btn btn-primary" onclick="guardarCierreDiario()">Guardar e imprimir cierre</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal de Gastos -->
+    <div class="modal fade" id="modalGastos" tabindex="-1" aria-labelledby="modalGastosLabel" aria-hidden="true">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content bg-dark text-white">
+          <div class="modal-header">
+            <h5 class="modal-title" id="modalGastosLabel">Gestión de Gastos</h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <!-- Formulario de Gastos -->
+            <form id="formGasto" class="mb-4">
+              <div class="row">
+                <div class="col-md-4">
+                  <div class="mb-3">
+                    <label for="descripcionGasto" class="form-label">Descripción</label>
+                    <input type="text" class="form-control bg-dark text-white border-light" id="descripcionGasto" required>
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div class="mb-3">
+                    <label for="montoGasto" class="form-label">Monto</label>
+                    <input type="number" class="form-control bg-dark text-white border-light" id="montoGasto" required>
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div class="mb-3">
+                    <label for="fechaGasto" class="form-label">Fecha</label>
+                    <input type="date" class="form-control bg-dark text-white border-light" id="fechaGasto" required>
+                  </div>
+                </div>
+              </div>
+              <button type="button" class="btn btn-info" id="btnGuardarGasto" onclick="guardarGasto()">
+                <i class="fas fa-save"></i> Guardar Gasto
+              </button>
+            </form>
+
+            <!-- Tabla de Gastos -->
+            <div class="table-responsive">
+              <table class="table table-dark" id="tablaGastos">
+                <thead>
+                  <tr>
+                    <th>Fecha</th>
+                    <th>Descripción</th>
+                    <th>Monto</th>
+                    <th>Acciones</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <!-- Los gastos se cargarán aquí -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal de Cotizaciones -->
+    <div class="modal fade" id="modalCotizaciones" tabindex="-1" aria-labelledby="modalCotizacionesLabel" aria-hidden="true">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content bg-dark text-white">
+          <div class="modal-header">
+            <h5 class="modal-title" id="modalCotizacionesLabel">
+              <i class="fas fa-file-invoice"></i> Cotizaciones
+              <button class="btn btn-sm btn-outline-info ms-2" onclick="mostrarAyudaEspecifica('cotizaciones')" title="Ayuda">
+                <i class="fas fa-question-circle"></i>
+              </button>
+            </h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <div class="mb-3">
+              <div class="input-group">
+                <input type="text" id="buscarCotizacion" class="form-control bg-dark text-white" placeholder="Buscar por cliente o fecha...">
+                <button class="btn btn-outline-light" type="button" onclick="buscarCotizaciones()">
+                  <i class="fas fa-search"></i>
+                </button>
+                <button class="btn btn-outline-info" type="button" onclick="mostrarAyudaEspecifica('buscar-cotizacion')" title="Ayuda de búsqueda">
+                  <i class="fas fa-question-circle"></i>
+                </button>
+              </div>
+            </div>
+            <div class="table-responsive">
+              <table class="table table-dark table-striped">
+                <thead>
+                  <tr>
+                    <th></th>
+                    <th>Fecha</th>
+                    <th>Cliente</th>
+                    <th>Total</th>
+                    <th>Acciones</th>
+                  </tr>
+                </thead>
+                <tbody id="tablaCotizaciones">
+                  <!-- Las cotizaciones se cargarán aquí -->
+                </tbody>
+              </table>
+            </div>
+            <div class="d-flex justify-content-end mt-2">
+              <button class="btn btn-info" onclick="imprimirCotizacionSeleccionada()">
+                <i class="fas fa-print"></i> Imprimir seleccionada
+              </button>
+              <button class="btn btn-outline-info ms-2" onclick="mostrarAyudaEspecifica('imprimir-cotizacion')" title="Ayuda de impresión">
+                <i class="fas fa-question-circle"></i>
+              </button>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-primary" onclick="mostrarModalNuevaCotizacion()">
+              <i class="fas fa-plus"></i> Nueva Cotización
+            </button>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal de Nueva Cotización -->
+    <div class="modal fade" id="modalNuevaCotizacion" tabindex="-1" aria-labelledby="modalNuevaCotizacionLabel" aria-hidden="true" style="z-index: 1060;">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content bg-dark text-white">
+          <div class="modal-header">
+            <h5 class="modal-title" id="modalNuevaCotizacionLabel">
+              <i class="fas fa-plus-circle"></i> Nueva Cotización
+              <button class="btn btn-sm btn-outline-info ms-2" onclick="mostrarAyudaEspecifica('nueva-cotizacion')" title="Ayuda">
+                <i class="fas fa-question-circle"></i>
+              </button>
+            </h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <div class="row mb-3">
+              <div class="col-md-6">
+                <label for="clienteCotizacion" class="form-label">Cliente</label>
+                <div class="input-group">
+                  <select class="form-select bg-dark text-white border-light" id="clienteCotizacion">
+                    <option value="">Seleccionar cliente</option>
+                  </select>
+                  <button class="btn btn-outline-light" type="button" onclick="mostrarModalNuevoCliente()">
+                    <i class="fas fa-plus"></i>
+                  </button>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <label for="fechaCotizacion" class="form-label">Fecha</label>
+                <input type="date" class="form-control bg-dark text-white border-light" id="fechaCotizacion">
+              </div>
+            </div>
+            <div class="row mb-3">
+              <div class="col-12">
+                <div class="card bg-dark border-light">
+                  <div class="card-header">
+                    <h6 class="mb-0">
+                      <i class="fas fa-plus"></i> Agregar Producto
+                    </h6>
+                  </div>
+                  <div class="card-body">
+                    <div class="row">
+                      <div class="col-md-4">
+                        <label for="categoriaProducto" class="form-label">Categoría</label>
+                        <select class="form-select bg-dark text-white border-light" id="categoriaProducto" onchange="filtrarProductosCotizacion()">
+                          <option value="">Todas las categorías</option>
+                        </select>
+                      </div>
+                      <div class="col-md-4">
+                        <label for="buscarProducto" class="form-label">Buscar Producto</label>
+                        <div class="input-group">
+                          <input type="text" class="form-control bg-dark text-white border-light" id="buscarProducto" placeholder="Escriba para buscar..." onkeyup="buscarProductosCotizacion()">
+                          <button class="btn btn-outline-light" type="button" onclick="toggleProductoManual()">
+                            <i class="fas fa-pen"></i>
+                          </button>
+                        </div>
+                      </div>
+                      <div class="col-md-2">
+                        <label for="cantidadItem" class="form-label">Cantidad</label>
+                        <input type="number" class="form-control bg-dark text-white border-light" id="cantidadItem" min="1" value="1">
+                      </div>
+                      <div class="col-md-2">
+                        <label for="precioItem" class="form-label">Precio</label>
+                        <input type="number" class="form-control bg-dark text-white border-light" id="precioItem" min="0" placeholder="0">
+                      </div>
+                    </div>
+                    <div id="resultadosBusqueda" class="list-group mt-2" style="max-height: 200px; overflow-y: auto; display: none;">
+                    </div>
+                    <input type="text" class="form-control mt-2 bg-dark text-white border-light" id="productoManual" style="display: none;" placeholder="Escribir nombre del producto">
+                    <div class="row mt-3">
+                      <div class="col-12">
+                        <button class="btn btn-primary" onclick="agregarItemCotizacion()">
+                          <i class="fas fa-plus"></i> Agregar Producto
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="table-responsive mt-3">
+              <table class="table table-dark table-striped">
+                <thead>
+                  <tr>
+                    <th>Producto</th>
+                    <th>Cantidad</th>
+                    <th>Precio</th>
+                    <th>Subtotal</th>
+                    <th>Acciones</th>
+                  </tr>
+                </thead>
+                <tbody id="itemsCotizacion">
+                  <!-- Los items se agregarán aquí -->
+                </tbody>
+                <tfoot>
+                  <tr>
+                    <td colspan="3" class="text-end"><strong>Total:</strong></td>
+                    <td colspan="2"><strong id="totalCotizacion">$0</strong></td>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+            <button type="button" class="btn btn-primary" onclick="guardarCotizacion()">
+              <i class="fas fa-save"></i> Guardar Cotización
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal de Nuevo Cliente -->
+    <div class="modal fade" id="modalNuevoCliente" tabindex="-1" aria-labelledby="modalNuevoClienteLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content bg-dark text-white">
+          <div class="modal-header">
+            <h5 class="modal-title" id="modalNuevoClienteLabel">Nuevo Cliente</h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <form id="formNuevoCliente">
+              <div class="mb-3">
+                <label for="nombreCliente" class="form-label">Nombre</label>
+                <input type="text" class="form-control bg-dark text-white border-light" id="nombreCliente" required>
+              </div>
+              <div class="mb-3">
+                <label for="telefonoCliente" class="form-label">Teléfono</label>
+                <input type="tel" class="form-control bg-dark text-white border-light" id="telefonoCliente">
+              </div>
+              <div class="mb-3">
+                <label for="direccionCliente" class="form-label">Dirección</label>
+                <input type="text" class="form-control bg-dark text-white border-light" id="direccionCliente">
+              </div>
+              <div class="mb-3">
+                <label for="emailCliente" class="form-label">Email</label>
+                <input type="email" class="form-control bg-dark text-white border-light" id="emailCliente">
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+            <button type="button" class="btn btn-primary" onclick="guardarNuevoCliente()">
+              <i class="fas fa-save"></i> Guardar Cliente
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal de PIN de Acceso -->
+    <div class="modal fade" id="modalPinAcceso" tabindex="-1" aria-labelledby="modalPinAccesoLabel" aria-hidden="true">
+      <div class="modal-dialog modal-sm">
+        <div class="modal-content bg-dark text-white">
+          <div class="modal-header">
+            <h5 class="modal-title" id="modalPinAccesoLabel">Acceso Restringido</h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <div class="mb-3">
+              <label for="pinAcceso" class="form-label">Ingrese el PIN de 4 dígitos</label>
+              <input type="password" class="form-control bg-dark text-white border-light" id="pinAcceso" 
+                     maxlength="4" pattern="[0-9]*" inputmode="numeric" 
+                     onkeypress="return event.charCode >= 48 && event.charCode <= 57">
+            </div>
+            <div id="mensajeErrorPin" class="text-danger" style="display: none;">
+              PIN incorrecto. Intente nuevamente.
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+            <button type="button" class="btn btn-primary" onclick="verificarPinAcceso()">
+              <i class="fas fa-unlock"></i> Acceder
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal de Agregar Item -->
+    <div class="modal fade" id="modalAgregarItem" tabindex="-1" aria-labelledby="modalAgregarItemLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="modalAgregarItemLabel">Agregar Item</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <div class="mb-3">
+              <label for="productoItem" class="form-label">Producto</label>
+              <input type="text" class="form-control" id="productoItem" placeholder="Nombre del producto">
+            </div>
+            <div class="mb-3">
+              <label for="cantidadItem" class="form-label">Cantidad</label>
+              <input type="number" class="form-control" id="cantidadItem" min="1" value="1">
+            </div>
+            <div class="mb-3">
+              <label for="precioItem" class="form-label">Precio</label>
+              <input type="number" class="form-control" id="precioItem" min="0" step="0.01" placeholder="0.00">
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+            <button type="button" class="btn btn-primary" onclick="guardarItemCotizacion(
+              document.getElementById('productoItem').value,
+              document.getElementById('cantidadItem').value,
+              document.getElementById('precioItem').value
+            )">Agregar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal de Balance -->
+    <div class="modal fade" id="modalBalance" tabindex="-1" aria-labelledby="modalBalanceLabel" aria-hidden="true">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content bg-dark text-white">
+          <div class="modal-header">
+            <h5 class="modal-title" id="modalBalanceLabel">Balance</h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <div class="row mb-3">
+              <div class="col-md-6">
+                <label for="tipoBalance" class="form-label">Tipo de Balance</label>
+                <select class="form-select" id="tipoBalance" onchange="generarBalance()">
+                  <option value="semanal">Balance Semanal</option>
+                  <option value="mensual">Balance Mensual</option>
+                  <option value="anual">Balance Anual</option>
+                </select>
+              </div>
+              <div class="col-md-6">
+                <label for="fechaBalance" class="form-label">Fecha</label>
+                <input type="date" class="form-control" id="fechaBalance" onchange="generarBalance()">
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-6">
+                <div class="card mb-3">
+                  <div class="card-header">
+                    <h6 class="mb-0">Resumen de Ventas</h6>
+                  </div>
+                  <div class="card-body">
+                    <div class="table-responsive">
+                      <table class="table table-sm">
+                        <thead>
+                          <tr>
+                            <th>Método</th>
+                            <th class="text-end">Monto</th>
+                          </tr>
+                        </thead>
+                        <tbody id="resumenVentas">
+                        </tbody>
+                        <tfoot>
+                          <tr>
+                            <th>Total Ventas</th>
+                            <th class="text-end" id="totalVentas">$ 0</th>
+                          </tr>
+                        </tfoot>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-md-6">
+                <div class="card mb-3">
+                  <div class="card-header">
+                    <h6 class="mb-0">Resumen de Gastos</h6>
+                  </div>
+                  <div class="card-body">
+                    <div class="table-responsive">
+                      <table class="table table-sm">
+                        <thead>
+                          <tr>
+                            <th>Total Gastos</th>
+                            <th class="text-end" id="totalGastos">$ 0</th>
+                          </tr>
+                        </thead>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-header">
+                <h6 class="mb-0">Créditos Pendientes</h6>
+              </div>
+              <div class="card-body">
+                <div class="table-responsive">
+                  <table class="table table-sm">
+                    <thead>
+                      <tr>
+                        <th>Cliente</th>
+                        <th>Fecha</th>
+                        <th class="text-end">Monto</th>
+                      </tr>
+                    </thead>
+                    <tbody id="creditosPendientes">
+                    </tbody>
+                    <tfoot>
+                      <tr>
+                        <th colspan="2">Total Créditos</th>
+                        <th class="text-end" id="totalCreditos">$ 0</th>
+                      </tr>
+                    </tfoot>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+            <button type="button" class="btn btn-primary" onclick="imprimirBalance()">
+              <i class="fas fa-print"></i> Imprimir
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal de Ayuda Contextual -->
+    <div class="modal fade" id="modalAyuda" tabindex="-1" style="z-index: 1070;">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content bg-dark text-white">
+          <div class="modal-header">
+            <h5 class="modal-title">
+              <i class="fas fa-question-circle text-info"></i>
+              Ayuda: <span id="tituloAyuda">Punto de Venta</span>
+            </h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body">
+            <div id="contenidoAyuda"></div>
+            <div id="enlacesAyuda" class="mt-3">
+              <h6>Enlaces Relacionados:</h6>
+              <div class="list-group list-group-flush bg-dark">
+                <!-- Enlaces dinámicos -->
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+  <script src="app.js"></script>
+  <script src="ayuda.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Loader
+      document.getElementById('customLoader').style.display = 'flex';
+      document.getElementById('mainContent').style.display = 'none';
+      setTimeout(() => {
+        document.getElementById('customLoader').style.display = 'none';
+        document.getElementById('mainContent').style.display = 'block';
+      }, 1000);
+
+      // Inicializar datos y mostrar categorías/productos
+      if (typeof cargarDatos === 'function') {
+        cargarDatos();
+      }
+      if (typeof mostrarProductos === 'function') {
+        mostrarProductos();
+      }
+      // PIN para Balance e Inventario
+      const btnBalance = document.querySelector('button[onclick="mostrarModalBalance()"]');
+      if (btnBalance) {
+        btnBalance.onclick = function() {
+          mostrarModalPin('balance');
+        };
+      }
+      const btnInventario = document.querySelector('a[href="inventario.html"]');
+      if (btnInventario) {
+        btnInventario.onclick = function(e) {
+          e.preventDefault();
+          mostrarModalPin('inventario');
+        };
+      }
+    });
+  </script>
+</body>
+</html> 
