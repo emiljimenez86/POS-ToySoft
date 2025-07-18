@@ -1,7 +1,7 @@
 {
-  "name": "ToySoft Free - Sistema POS Gratuito",
-  "short_name": "ToySoft Free",
-  "description": "Sistema de Punto de Venta Gratuito para Restaurantes",
+  "name": "ToySoft - Sistema POS",
+  "short_name": "ToySoft",
+  "description": "Sistema de Punto de Venta para Restaurantes",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#ffffff",
